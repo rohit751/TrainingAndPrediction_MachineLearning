@@ -19,23 +19,45 @@ setdiff(trainNvalid, as.integer(rownames(iris)))
 # clean up environment
 rm(trainNvalid)
 
-# Training using LDA algorithm ####
+# Training - LDA model ####
 library(MASS)
 ldaMod = lda(formula = trainData$Species~., data = trainData)
 
-# Prediction using the LDA model####
+# Prediction - LDA model ####
 ldaPred = predict(object = ldaMod, newdata = validData)
 #View(ldaPred)
 
-# Validation ####
+# Validation - LDA model ####
 validData$LdaPredClass = ldaPred$class
 validData$LdaPredProb = apply(ldaPred$posterior, MARGIN = 1, FUN = max)
 View(validData)
 
-# Performance ####
+# Performance - LDA model ####
 ldaCorrect = sum(validData$Species == validData$LdaPredClass)
 ldaIncorrect = length(validData$Species) - ldaCorrect
 ldaErrorRate = ldaIncorrect/length(validData$Species)
 
-# Display results ####
-sprintf("LDA Model Error Rate: %s%%", format(ldaErrorRate*100, digits = 3))
+# Display results - LDA model ####
+sprintf("LDA Model Error Rate: %s%%", format(ldaErrorRate*100, digits = 4))
+
+
+
+# Training - QDA model ####
+qdaMod = qda(formula = trainData$Species~., data = trainData)
+
+# Prediction - QDA model ####
+qdaPred = predict(object = qdaMod, newdata = validData)
+#View(qdaPred)
+
+# Validation - QDA model ####
+validData$QdaPredClass = qdaPred$class
+validData$QdaPredProb = apply(qdaPred$posterior, MARGIN = 1, FUN = max)
+View(validData)
+
+# Performance - QDA model ####
+qdaCorrect = sum(validData$Species == validData$QdaPredClass)
+qdaIncorrect = length(validData$Species) - qdaCorrect
+qdaErrorRate = qdaIncorrect/length(validData$Species)
+
+# Display results - QDA model ####
+sprintf("QDA Model Error Rate: %s%%", format(qdaErrorRate*100, digits = 4))
