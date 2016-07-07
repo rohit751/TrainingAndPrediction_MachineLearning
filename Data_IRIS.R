@@ -8,14 +8,12 @@ data(iris)
 trnIdx = sample(as.integer(rownames(iris)), floor(length(rownames(iris))*0.75))
 trainData = iris[trnIdx,]
 validData = iris[-trnIdx,]
-
 #View(trainData)
 #View(validData)
 
 # Verify the objects
 trainNvalid = union(trnIdx, as.integer(rownames(validData)))
 setdiff(trainNvalid, as.integer(rownames(iris)))
-
 # clean up environment
 rm(trainNvalid)
 
@@ -61,3 +59,27 @@ qdaErrorRate = qdaIncorrect/length(validData$Species)
 
 # Display results - QDA model ####
 sprintf("QDA Model Error Rate: %s%%", format(qdaErrorRate*100, digits = 4))
+
+
+
+# Training - Random Forest model ####
+library(randomForest)
+rfMod = randomForest(formula = trainData$Species~., data = trainData)
+
+# Prediction - Random Forest model ####
+rfPred = predict(object = rfMod, newdata = validData, type = 'prob')
+#View(rfPred)
+
+# Validation - Random Forest model ####
+validData$RfPredClass = colnames(rfPred)[max.col(rfPred, ties.method="first")]
+validData$RfPredProb = apply(rfPred, MARGIN = 1, FUN = max)
+View(validData)
+
+# Performance - Random Forest model ####
+rfCorrect = sum(validData$Species == validData$RfPredClass)
+rfIncorrect = length(validData$Species) - rfCorrect
+rfErrorRate = rfIncorrect/length(validData$Species)
+
+# Display results - Random Forest model ####
+sprintf("Random Forest Model Error Rate: %s%%",
+        format(rfErrorRate*100, digits = 4))
